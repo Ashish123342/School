@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>targets</title>
+  <style>
+  body{
+    background-image: url(/blur-image-classroom-use-background_6900-9.jpg);
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #fff;
+  flex-direction: column;
+  text-align: center;
+  }
+  .container{
+  display :flex;
+  flex-direction: column;
+  gap: 20px; /* spacing between boxes */
+  justify-content: center;
+  position: relative;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #8A8B91;
+  height: 600px;
+  width: 330px;
+  border-radius: 20px;
+  }
+    .container #w1 #en {
+    background-color :rgba(208, 208, 208, 1);
+    position: relative;
+    display :flex;
+align-items :center;
+justify-content: center;
+    text-align: left;
+    font-size :25px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 50px;
+    width: 330px;
+  }
+   .container #w2 #hi {
+    background-color :rgba(208, 208, 208, 1);
+    position: relative;
+    display :flex;
+align-items :center;
+justify-content: center;
+    text-align: left;
+    font-size :25px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 50px;
+    width: 330px;
+  }
+   .container #w3 #mty {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+  .container #w4 #sst {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px ;
+   width: 330px;
+ }
+  .container #w5 #sc {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+  .container #w6 #mtb {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+
+.container #btn{
+  height:50px;
+  width: 100px;
+  border-radius :20px;
+  background-color :rgba(77, 174, 105, 1);
+  border:none;
+  color:#FFFFFF;
+  font-weight :bold;
+ }
+  </style>  
+  </head>
+  <body>
+  <h3 style="font-family:Arial sans serif; color:#68885e;">Your Notebook Completion!</h3>
+  <div class="container">
+  
+  <div id="w1"><input type="number" placeholder="English (in %)" name="English" id="en" /></div>
+
+  <div id="w2"><input type="number" placeholder="Hindi (in %)" name="Hindi" id="hi" /></div>
+  
+  <div id="w3"><input type="number" placeholder="MathsY (in %)" name="MathsY" id="mty" /></div>
+
+   <div id="w4"><input type="number" placeholder="Sst  (in %)" name="sst" id="sst" /></div>
+   
+   <div id="w5"><input type="number" placeholder="Science (in %) " name="Science" id="sc" /></div>
+
+   <div id="w6"><input type="number" placeholder="MathsB (in %)" name="MathsB" id="mtb" /></div>
+
+   <button id="btn" type="submit" onclick="Dataset()">Add</button>
+  </div>
+  <script>
+  function Dataset(){
+  window.location.href='School.html'
+  var en = document.getElementById('en').value;
+  var hi = document.getElementById('hi').value;
+  var mty = document.getElementById('mty').value;
+  var sst = document.getElementById('sst').value;
+  var sc = document.getElementById('sc').value;
+  var mtb = document.getElementById('mtb').value;
+  
+  localStorage.setItem("%en",en);
+  localStorage.setItem("%hi",hi);
+  localStorage.setItem("%mty",mty);
+  localStorage.setItem("%sst",sst);
+  localStorage.setItem("%sc",sc);
+  localStorage.setItem("%mtb",mtb);
+  
+  
+  
+  
+  
+  } 
+  
+  </script>
+  </body>
+</html>

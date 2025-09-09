@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Copy Check Input</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .form-box {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+      width: 350px;
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 12px; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover { background: #388E3C; }
+    p { text-align: center; margin-top: 15px; }
+    a { text-decoration: none; font-weight: bold; color: #333; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Add Copy Check</h2>
+    <form id="copyForm">
+      <label>Subject Name:</label>
+      <input type="text" id="subject" required>
+
+      <label>Check Date:</label>
+      <input type="date" id="checkDate" required>
+
+      <button type="submit">Save Copy Check</button>
+    </form>
+  
+  </div>
+
+  <script>
+    document.getElementById("copyForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      let subject = document.getElementById("subject").value;
+      let checkDate = document.getElementById("checkDate").value;
+
+      let copies = JSON.parse(localStorage.getItem("copies")) || [];
+      copies.push({ subject, date: checkDate, status: "upcoming" });
+
+      // nearest date sort
+      copies.sort((a,b)=> new Date(a.date) - new Date(b.date));
+
+      localStorage.setItem("copies", JSON.stringify(copies));
+      alert("✅ Copy Check Saved!");
+      this.reset();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>targets</title>
+  <style>
+  body{
+    background-image: url(/blur-image-classroom-use-background_6900-9.jpg);
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #fff;
+  flex-direction: column;
+  text-align: center;
+  }
+  .container{
+  display :flex;
+  flex-direction: column;
+  gap: 20px; /* spacing between boxes */
+  justify-content: center;
+  position: relative;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #8A8B91;
+  height: 600px;
+  width: 330px;
+  border-radius: 20px;
+  }
+    .container #t1 #en {
+    background-color :rgba(208, 208, 208, 1);
+    position: relative;
+    display :flex;
+align-items :center;
+justify-content: center;
+    text-align: left;
+    font-size :25px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 50px;
+    width: 330px;
+  }
+   .container #t2 #hi {
+    background-color :rgba(208, 208, 208, 1);
+    position: relative;
+    display :flex;
+align-items :center;
+justify-content: center;
+    text-align: left;
+    font-size :25px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 50px;
+    width: 330px;
+  }
+   .container #t3 #mty {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+  .container #t4 #sst {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px ;
+   width: 330px;
+ }
+  .container #t5 #sc {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+  .container #t6 #mtb {
+   background-color: rgba(208, 208, 208, 1);
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: left;
+   font-size: 25px;
+   border: 2px solid black;
+   border-radius: 20px;
+   height: 50px;
+   width: 330px;
+ }
+ .container #t7 #hwc {
+  background-color: rgba(208, 208, 208, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  font-size: 25px;
+  border: 2px solid black;
+  border-radius: 20px;
+  height: 50px;
+  width: 330px;
+}
+.container #btn{
+  height:50px;
+  width: 100px;
+  border-radius :20px;
+  background-color :rgba(96, 178, 255, 1);
+  border:none;
+  color:#FFFFFF;
+  font-weight :bold;
+ }
+  </style>  
+  </head>
+  <body>
+  <h3 style="font-family:Arial sans serif; color:#68885e;">Your Targets Today!</h3>
+  <div class="container">
+  
+  <div id="t1"><input type="number" placeholder="English H•W in %" name="English" id="en" /></div>
+
+  <div id="t2"><input type="number" placeholder="Hindi H•W in %" name="Hindi" id="hi" /></div>
+  
+  <div id="t3"><input type="number" placeholder="MathsY H•W in %" name="MathsY" id="mty" /></div>
+
+   <div id="t4"><input type="number" placeholder="Sst H•W in %" name="sst" id="sst" /></div>
+   
+   <div id="t5"><input type="number" placeholder="Science H•W in %" name="Science" id="sc" /></div>
+
+   <div id="t6"><input type="number" placeholder="MathsB H•W in %" name="MathsB" id="mtb" /></div>
+
+   <button id="btn" type="submit" onclick="Dataset()">Submit</button>
+  </div>
+  <script>
+  function Dataset(){
+  window.location.href="School.html"
+  var en = document.getElementById('en').value;
+  var hi = document.getElementById('hi').value;
+  var mty = document.getElementById('mty').value;
+  var sst = document.getElementById('sst').value;
+  var sc = document.getElementById('sc').value;
+  var mtb = document.getElementById('mtb').value;
+  
+  localStorage.setItem("English",en);
+  localStorage.setItem("Hindi",hi);
+  localStorage.setItem("MathsY",mty);
+  localStorage.setItem("SSt",sst);
+  localStorage.setItem("Science",sc);
+  localStorage.setItem("MathsB",mtb);
+  
+  }
+  
+  function Value(){
+  let s1 = localStorage.getItem('English');
+  let s2 = localStorage.getItem('Hindi');
+  let s3 = localStorage.getItem('MathsY');
+  let s4 = localStorage.getItem('SSt');
+  let s5 = localStorage.getItem('Science');
+  let s6 = localStorage.getItem('MathsB');
+  
+
+  document.getElementById('en').value = s1;
+  document.getElementById('hi').value = s2;
+  document.getElementById('mty').value = s3;
+  document.getElementById('sst').value = s4;
+  document.getElementById('sc').value = s5;
+  document.getElementById('mtb').value = s6;
+  }
+  Value();
+  </script>
+  </body>
+</html>

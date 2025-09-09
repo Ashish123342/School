@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <title>Notebook Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg,#fdfcfb 0%,#e2d1c3 100%);
+      margin: 0; padding: 30px;
+    }
+    h2 { text-align: center; margin-bottom: 25px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+      transition: 0.2s;
+    }
+    .card:hover { transform: scale(1.03); }
+    .card h3 { margin: 0 0 10px; font-size: 18px; color: #444; }
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .bag { background: #ffcf99; color: #d35400; }
+    .active { background: #a8ebc2; color: #1e8449; }
+    .sleep { background: #cdddfc; color: #2c3e90; }
+    .shared { background: #ffe0f0; color: #c2185b; }
+    .sharedName { margin-top: 6px; font-style: italic; color: #444; }
+    p { text-align:center; margin-top:20px; }
+    a { text-decoration: none; font-weight: bold; color: #333; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h2>📚 Notebook Dashboard</h2>
+  <div class="grid" id="dataGrid"></div>
+
+
+  <script>
+    let data = JSON.parse(localStorage.getItem("notebooks")) || [];
+    let grid = document.getElementById("dataGrid");
+
+    function getStatus(item){
+      if(item.location === "In Bag") return {text:"In Bag 🎒", cls:"bag"};
+      if(item.location === "In Right row") return {text:"Active ⚡", cls:"active"};
+      if(item.location === "In Left row") return {text:"Sleep 😴", cls:"sleep"};
+      if(item.location === "Shared") return {text:"Shared 📤", cls:"shared"};
+      return {text:item.location, cls:""};
+    }
+
+    data.forEach(item=>{
+      let card=document.createElement("div");
+      card.className="card";
+
+      let title=document.createElement("h3");
+      title.textContent=item.notebook;
+      card.appendChild(title);
+
+      let statusInfo=getStatus(item);
+      let status=document.createElement("span");
+      status.className="status "+statusInfo.cls;
+      status.textContent=statusInfo.text;
+      card.appendChild(status);
+
+      if(item.location === "Shared" && item.sharedName){
+        let shared=document.createElement("p");
+        shared.className="sharedName";
+        shared.textContent="👤 Shared with: "+item.sharedName;
+        card.appendChild(shared);
+      }
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
