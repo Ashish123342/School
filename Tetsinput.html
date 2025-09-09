@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
+    }
+    .form-box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    input:focus {
+      border-color: #6a5acd;
+      outline: none;
+    }
+    button {
+      background: #6a5acd;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #483d8b;
+    }
+    a {
+      color: #333;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Add New Test</h2>
+    <form id="testForm">
+      <label>Test Name:</label>
+      <input type="text" id="testName" required>
+
+      <label>Test Date:</label>
+      <input type="date" id="testDate" required>
+
+      <button type="submit">Save Test</button>
+    </form>
+    <p style="margin-top:15px;">➡ <a href="test-dashboard.html">Go to Dashboard</a></p>
+  </div>
+
+  <script>
+    document.getElementById("testForm").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      let testName = document.getElementById("testName").value;
+      let testDate = document.getElementById("testDate").value;
+
+      let tests = JSON.parse(localStorage.getItem("tests")) || [];
+
+      tests.push({ name: testName, date: testDate, status: "upcoming" });
+
+      // sort nearest first
+      tests.sort((a,b)=> new Date(a.date) - new Date(b.date));
+
+      localStorage.setItem("tests", JSON.stringify(tests));
+      alert("✅ Test saved successfully!");
+      this.reset();
+    });
+  </script>
+</body>
+</html>

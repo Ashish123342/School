@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg,#f6d365 0%,#fda085 100%);
+      margin: 0;
+      padding: 30px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #222;
+    }
+    .section { margin-bottom: 25px; }
+    .section h3 {
+      background: #333;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 0 0 15px;
+    }
+    .card {
+      background: white;
+      margin: 10px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
+      max-width: 550px;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: scale(1.02); }
+    .card h4 { margin: 0 0 8px; color: #444; }
+    .date { font-size: 14px; color: #777; margin: 4px 0; }
+    .status { font-weight: bold; }
+    .upcoming { color: #ff8c00; }
+    .completed { color: #28a745; }
+    .expired { color: red; }
+    .doneBtn {
+      background: #28a745; color: white; border: none; padding: 8px 14px;
+      margin-top: 10px; border-radius: 5px; cursor: pointer; font-size: 14px;
+    }
+    .doneBtn:hover { background: #1e7e34; }
+    p { text-align: center; margin-top: 20px; }
+    a { color: #222; font-weight: bold; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h2>📘 Test Dashboard</h2>
+
+  <div class="section">
+    <h3>Upcoming Tests</h3>
+    <div id="upcoming"></div>
+  </div>
+
+  <div class="section">
+    <h3>Completed Tests</h3>
+    <div id="completed"></div>
+  </div>
+
+  <div class="section">
+    <h3>Expired Tests</h3>
+    <div id="expired"></div>
+  </div>
+
+  <p>➡ <a href="test-input.html">Add New Test</a></p>
+
+  <script>
+    function renderTests(){
+      let upcomingDiv=document.getElementById("upcoming");
+      let compDiv=document.getElementById("completed");
+      let expDiv=document.getElementById("expired");
+      upcomingDiv.innerHTML= compDiv.innerHTML= expDiv.innerHTML="";
+
+      let tests = JSON.parse(localStorage.getItem("tests")) || [];
+      tests.sort((a,b)=> new Date(a.date)-new Date(b.date));
+
+      let today = new Date();
+      let todayStr = today.toISOString().split("T")[0];
+
+      tests.forEach((test,index)=>{
+        let card=document.createElement("div");
+        card.className="card";
+
+        let title=document.createElement("h4");
+        title.textContent=test.name;
+        card.appendChild(title);
+
+        let date=document.createElement("p");
+        date.textContent="📅 Date: "+test.date;
+        date.className="date";
+        card.appendChild(date);
+
+        let status=document.createElement("p");
+        status.className="status";
+
+        // expiry check with +1 day buffer
+        let testDate = new Date(test.date);
+        testDate.setDate(testDate.getDate() + 1); // ek din add
+        let graceDate = testDate.toISOString().split("T")[0];
+
+        if(test.status==="done"){
+          status.textContent="✔ Completed";
+          status.classList.add("completed");
+          compDiv.appendChild(card);
+        } else if(graceDate < todayStr){ 
+          // matlab original testDate ke +1 day bhi nikal gaya
+          status.textContent="❌ Expired";
+          status.classList.add("expired");
+          expDiv.appendChild(card);
+        } else {
+          status.textContent="⏳ Upcoming";
+          status.classList.add("upcoming");
+
+          let btn=document.createElement("button");
+          btn.textContent="Mark as Done";
+          btn.className="doneBtn";
+          btn.onclick=function(){
+            tests[index].status="done";
+            localStorage.setItem("tests",JSON.stringify(tests));
+            renderTests();
+          };
+          card.appendChild(btn);
+          upcomingDiv.appendChild(card);
+        }
+        card.appendChild(status);
+      });
+    }
+    renderTests();
+  </script>
+</body>
+</html>

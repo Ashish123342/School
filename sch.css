@@ -1,0 +1,178 @@
+    .menu-icon {
+      width: 30px;
+      cursor: pointer;
+      margin: 0px;
+      position: relative;
+      left:-170px;
+    
+    }
+
+    .menu-icon div {
+      height: 4px;
+      background-color: #333;
+      margin: 6px 0;
+      transition: 0.4s;
+      
+    }
+
+    .nav {
+      display: none;
+      background-color: #f0f0f0;
+      padding: 10px;
+    }
+    .nav a:hover{
+    background-color: rgba(162, 147, 134, 1);
+    font-size: 25px;
+    }
+    .nav a {
+      display: block;
+      padding: 8px;
+      text-decoration: none;
+      border: 1px solid #4F57B9;
+      color: #333;
+      border-radius :5px;
+      font-weight: bold;
+      font-family: Helvetica;
+    }
+
+
+body {
+  user-select: none;
+  background-image: url(/blur-image-classroom-use-background_6900-9.jpg);
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #fff;
+  flex-direction: column;
+  text-align: center;
+}
+  .header {
+  font-size :10px;
+  display: grid; /* Use grid instead of flex */
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  
+  gap: 0px; /* spacing between boxes */
+  justify-content: top;
+  align-items: top;
+  padding: 0px;
+  background-color :rgba(61, 150, 44, 1);
+  border :2px solid #000000;
+  border-radius :5px;
+  height:130px;
+  width: 390px;
+  }
+  .header #date{
+  border:none;
+  border-radius :5px;
+  height:20px;
+  width: 190px;
+  }
+  .header #workdone{
+  border:none;
+  font-weight :bold;
+  text-align:center;
+  border-radius :5px;
+  height:15px;
+  width: 150px;
+  }
+
+  
+  
+  .header #target {
+   border: none;
+   border-radius: 5px;
+   position: relative;
+   top:-5px;
+   height: 110px;
+   width: 200px;
+   text-align :left;
+ }
+
+   .header #ncw {
+   display :grid;
+   grid-template-columns :repeat(2,1fr);
+   gap:-20px ;
+   border: none;
+   border-radius: 5px;
+   position: relative;
+   top:0px;
+   height: 110px;
+   width: 190px;
+   text-align :left;
+ }
+ .container {
+  
+   display: grid; /* Use grid instead of flex */
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  grid-template-rows: repeat(2, auto); /* 2 rows */
+  gap: 20px; /* spacing between boxes */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #8A8B91;
+  height: 600px;
+  width: 330px;
+  border-radius: 20px;
+}
+  .container #hw:hover{
+  background-color:rgba(105, 209, 123, 1)
+  }
+  .container #hw{
+  background-color :rgba(208, 208, 208, 1);
+  display :flex;
+  align-items :center;
+  justify-content: center;
+  
+  font-size :50px;
+  border :2px solid black;
+  border-radius :20px;
+  height :250px;
+  width: 150px;
+  }
+  .container #nd:hover{
+  background-color:rgba(105, 209, 123, 1);
+  }
+  .container #nd {
+    background-color :rgba(208, 208, 208, 1);
+    display :flex;
+align-items :center;
+justify-content: center;
+    text-align: center;
+    font-size :50px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 250px;
+    width: 150px;
+  }
+  .container #tst:hover {
+  background-color: rgba(105, 209, 123, 1)
+  }
+  .container #tst {
+    background-color :rgba(208, 208, 208, 1);
+    display :flex;
+  align-items :center;
+  justify-content: center;
+    font-size :50px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 250px;
+    width: 150px;
+  }
+  .container #cc:hover {
+  background-color: rgba(105, 209, 123, 1)
+  }
+  .container #cc {
+    background-color :rgba(208, 208, 208, 1);
+    display :flex;
+align-items :center;
+justify-content: center;
+    font-size :50px;
+    border: 2px solid black;
+    border-radius: 20px;
+    height: 250px;
+    width: 150px;
+  }
