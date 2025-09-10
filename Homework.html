@@ -1,110 +1,95 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="hi">
 <head>
-  <title>Homework History</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Homework List</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; 
-         font-size:50px;
-         }
-    h2 { margin-bottom: 10px; }
-    .group {
-      background: #fff;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    .group h3 {
-      margin: 0 0 12px 0;
-      font-size: 50px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 6px;
-    }
-    .subject {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px dashed #ddd;
-      font-size:50px;
-    }
-    .subject:last-child {
-      border-bottom: none;
-    }
-    .done {
-      text-decoration: line-through;
-      color: #888;
-    }
-    input[type="checkbox"] {
-      width: 50px;
-      height: 50px;
-    }
+    body { font-family: system-ui, sans-serif; padding: 24px; background:#f7f8fb; color:#111; }
+    .card { background:white; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(20,20,40,0.06); max-width:760px; margin:auto; }
+    h1{ margin:0 0 12px 0; font-size:20px; }
+    ul.tasks{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    li.task { display:flex; align-items:center; gap:12px; padding:10px; border-radius:8px; transition:all .18s ease; }
+    li.task:not(.expired):hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(20,20,40,0.04); }
+    .meta { display:flex; flex-direction:column; line-height:1.3; }
+    .title { font-weight:600; }
+    .deadline { font-size:12px; color:#666; }
+    .check-area { width:40px; display:flex; align-items:center; justify-content:center; }
+    input[type="checkbox"] { width:18px; height:18px; }
+    /* expired style (only for pending tasks) */
+    li.task.expired { opacity:0.7; background: linear-gradient(90deg, rgba(255,230,230,0.6), rgba(255,245,245,0.4)); border:1px solid rgba(255,200,200,0.6); }
+    li.task.expired .title { text-decoration: line-through; color:#a33; }
+    .x-mark { font-size:20px; font-weight:700; color:#c33; transform:rotate(-12deg); }
+    li.task.expired .checkbox { display:none; }
+    .expired-note { font-size:12px; color:#a33; margin-left:6px; }
   </style>
 </head>
 <body>
-  <h2>📚 Homework </h2>
-  <div id="list"></div>
+  <div class="card">
+    <h1>Homework List</h1>
+    <ul class="tasks" id="tasks">
+      <!-- Example items with data-deadline -->
+      <li class="task" data-deadline="2025-09-09T18:00:00+05:30">
+        <div class="check-area checkbox"><input type="checkbox" /></div>
+        <div class="meta">
+          <div class="title">Math: Chapter 5 practice</div>
+          <div class="deadline">Due: Sep 9, 2025 18:00 (IST)</div>
+        </div>
+        <div class="check-area x-area" style="display:none"><span class="x-mark">✗</span></div>
+      </li>
+
+      <li class="task" data-deadline="2025-09-10T20:00:00+05:30">
+        <div class="check-area checkbox"><input type="checkbox" /></div>
+        <div class="meta">
+          <div class="title">Science: Worksheet</div>
+          <div class="deadline">Due: Sep 10, 2025 20:00 (IST)</div>
+        </div>
+        <div class="check-area x-area" style="display:none"><span class="x-mark">✗</span></div>
+      </li>
+    </ul>
+  </div>
 
   <script>
-    let homework = JSON.parse(localStorage.getItem("homework") || "[]");
+    const THRESHOLD_MS = 12 * 60 * 60 * 1000; // 12 hours
 
-    function formatDate(dateStr) {
-      const d = new Date(dateStr);
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yy = String(d.getFullYear()).slice(-2);
-      const today = new Date().toISOString().slice(0, 10);
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    function refreshTasks() {
+      const now = new Date();
+      const tasks = document.querySelectorAll('#tasks li.task');
 
-      if (dateStr === today) return "Today";
-      if (dateStr === yesterday) return "Yesterday";
-      return `${dd}/${mm}/${yy}`;
-    }
+      tasks.forEach(li => {
+        const dl = li.getAttribute('data-deadline');
+        if (!dl) return;
 
-    function render() {
-      const list = document.getElementById("list");
-      list.innerHTML = "";
+        const deadline = new Date(dl);
+        const diff = now - deadline; // positive if past deadline
 
-      const groups = {};
-      homework.forEach((item, index) => {
-        if (!groups[item.date]) groups[item.date] = [];
-        groups[item.date].push({ ...item, index });
-      });
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        const cbArea = li.querySelector('.checkbox');
+        const xArea = li.querySelector('.x-area');
 
-      Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date => {
-        const group = document.createElement("div");
-        group.className = "group";
-        group.innerHTML = `<h3>${formatDate(date)}</h3>`;
-
-        groups[date].forEach(({ subject, notes, done, index }) => {
-          const div = document.createElement("div");
-          div.className = "subject";
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.checked = done;
-          checkbox.onchange = () => toggleDone(index);
-
-          const label = document.createElement("label");
-          label.className = done ? "done" : "";
-          label.textContent = `${subject}${notes ? ': ' + notes : ''}`;
-
-          div.appendChild(checkbox);
-          div.appendChild(label);
-          group.appendChild(div);
-        });
-
-        list.appendChild(group);
+        if (diff >= THRESHOLD_MS) {
+          if (checkbox && checkbox.checked) {
+            // ✅ Completed → keep checkbox ticked
+            li.classList.remove('expired');
+            if (cbArea) cbArea.style.display = 'flex';
+            if (xArea) xArea.style.display = 'none';
+          } else {
+            // ❌ Expired & pending → show X
+            li.classList.add('expired');
+            if (cbArea) cbArea.style.display = 'none';
+            if (xArea) xArea.style.display = 'flex';
+          }
+        } else {
+          // Deadline not yet exceeded 12h → normal
+          li.classList.remove('expired');
+          if (cbArea) cbArea.style.display = 'flex';
+          if (xArea) xArea.style.display = 'none';
+        }
       });
     }
 
-    function toggleDone(index) {
-      homework[index].done = !homework[index].done;
-      localStorage.setItem("homework", JSON.stringify(homework));
-      render();
-    }
-
-    render();
+    refreshTasks();
+    setInterval(refreshTasks, 60*1000); // re-check every minute
   </script>
 </body>
 </html>
