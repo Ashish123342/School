@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Homework by Date</title>
+  <title>Homework by Date (LocalStorage)</title>
   <style>
     body { font-family: system-ui, sans-serif; padding: 24px; background:#f7f8fb; color:#111; display:flex; flex-direction:column; gap:24px; }
     .date-card { background:white; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(20,20,40,0.06); max-width:760px; margin:auto; width:100%; }
@@ -23,85 +23,116 @@
     li.task.expired .checkbox { display:none; }
   </style>
 </head>
-<body>
+<body id="app">
 
-  <!-- Card for 9 Sept -->
-  <div class="date-card">
-    <div class="date-title">9 Sept 2025</div>
-    <ul class="tasks">
-      <li class="task" data-deadline="2025-09-09T18:00:00+05:30">
-        <div class="check-area checkbox"><input type="checkbox" /></div>
-        <div class="meta">
-          <div class="title">Math: Chapter 5 Practice</div>
-          <div class="deadline">Due: Sep 9, 2025 18:00 IST</div>
-        </div>
-        <div class="check-area x-area" style="display:none"><span class="x-mark">✗</span></div>
-      </li>
-      <li class="task" data-deadline="2025-09-09T21:00:00+05:30">
-        <div class="check-area checkbox"><input type="checkbox" /></div>
-        <div class="meta">
-          <div class="title">English Essay</div>
-          <div class="deadline">Due: Sep 9, 2025 21:00 IST</div>
-        </div>
-        <div class="check-area x-area" style="display:none"><span class="x-mark">✗</span></div>
-      </li>
-    </ul>
-  </div>
+<script>
+const THRESHOLD_MS = 12 * 60 * 60 * 1000;
 
-  <!-- Card for 10 Sept -->
-  <div class="date-card">
-    <div class="date-title">10 Sept 2025</div>
-    <ul class="tasks">
-      <li class="task" data-deadline="2025-09-10T20:00:00+05:30">
-        <div class="check-area checkbox"><input type="checkbox" /></div>
-        <div class="meta">
-          <div class="title">Science: Worksheet</div>
-          <div class="deadline">Due: Sep 10, 2025 20:00 IST</div>
-        </div>
-        <div class="check-area x-area" style="display:none"><span class="x-mark">✗</span></div>
-      </li>
-    </ul>
-  </div>
+// Example seeding (अगर LocalStorage खाली हो तो):
+if (!localStorage.getItem("homeworks")) {
+  const sample = {
+    "2025-09-09": [
+      {"title":"Math: Chapter 5 Practice","deadline":"2025-09-09T18:00:00+05:30","checked":false},
+      {"title":"English Essay","deadline":"2025-09-09T21:00:00+05:30","checked":true}
+    ],
+    "2025-09-10": [
+      {"title":"Science Worksheet","deadline":"2025-09-10T20:00:00+05:30","checked":false}
+    ]
+  };
+  localStorage.setItem("homeworks", JSON.stringify(sample));
+}
 
-  <script>
-    const THRESHOLD_MS = 12 * 60 * 60 * 1000; // 12 hours
+// Render cards from LocalStorage
+function renderHomeworks() {
+  const app = document.getElementById("app");
+  app.innerHTML = ""; // clear
 
-    function refreshTasks() {
-      const now = new Date();
-      document.querySelectorAll('li.task').forEach(li => {
-        const dl = li.getAttribute('data-deadline');
-        if (!dl) return;
+  const data = JSON.parse(localStorage.getItem("homeworks")) || {};
+  const now = new Date();
 
-        const deadline = new Date(dl);
-        const diff = now - deadline;
+  Object.keys(data).sort().forEach(dateKey => {
+    const card = document.createElement("div");
+    card.className = "date-card";
+    card.innerHTML = `<div class="date-title">${dateKey}</div>`;
+    const ul = document.createElement("ul");
+    ul.className = "tasks";
 
-        const checkbox = li.querySelector('input[type="checkbox"]');
-        const cbArea = li.querySelector('.checkbox');
-        const xArea = li.querySelector('.x-area');
+    data[dateKey].forEach((task, idx) => {
+      const li = document.createElement("li");
+      li.className = "task";
+      li.setAttribute("data-deadline", task.deadline);
 
-        if (diff >= THRESHOLD_MS) {
-          if (checkbox && checkbox.checked) {
-            // ✅ completed → show tick
-            li.classList.remove('expired');
-            cbArea.style.display = 'flex';
-            xArea.style.display = 'none';
-          } else {
-            // ❌ expired + pending → show X
-            li.classList.add('expired');
-            cbArea.style.display = 'none';
-            xArea.style.display = 'flex';
-          }
-        } else {
-          // ⏳ still within deadline
-          li.classList.remove('expired');
-          cbArea.style.display = 'flex';
-          xArea.style.display = 'none';
-        }
+      const cbArea = document.createElement("div");
+      cbArea.className = "check-area checkbox";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = task.checked;
+      cbArea.appendChild(checkbox);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `<div class="title">${task.title}</div>
+                        <div class="deadline">Due: ${new Date(task.deadline).toLocaleString()}</div>`;
+
+      const xArea = document.createElement("div");
+      xArea.className = "check-area x-area";
+      xArea.style.display = "none";
+      xArea.innerHTML = `<span class="x-mark">✗</span>`;
+
+      li.appendChild(cbArea);
+      li.appendChild(meta);
+      li.appendChild(xArea);
+
+      ul.appendChild(li);
+
+      // checkbox event save
+      checkbox.addEventListener("change", () => {
+        task.checked = checkbox.checked;
+        localStorage.setItem("homeworks", JSON.stringify(data));
+        refreshTask(li, task);
       });
-    }
 
-    refreshTasks();
-    setInterval(refreshTasks, 60 * 1000);
-  </script>
+      refreshTask(li, task);
+    });
+
+    card.appendChild(ul);
+    app.appendChild(card);
+  });
+}
+
+// Apply expiry rule on one task
+function refreshTask(li, task) {
+  const now = new Date();
+  const deadline = new Date(task.deadline);
+  const diff = now - deadline;
+
+  const cbArea = li.querySelector(".checkbox");
+  const xArea = li.querySelector(".x-area");
+  const checkbox = li.querySelector("input[type='checkbox']");
+
+  if (diff >= THRESHOLD_MS) {
+    if (task.checked) {
+      // ✅ completed → keep as is
+      li.classList.remove("expired");
+      cbArea.style.display = "flex";
+      xArea.style.display = "none";
+    } else {
+      // ❌ expired + pending
+      li.classList.add("expired");
+      cbArea.style.display = "none";
+      xArea.style.display = "flex";
+    }
+  } else {
+    // still valid
+    li.classList.remove("expired");
+    cbArea.style.display = "flex";
+    xArea.style.display = "none";
+  }
+}
+
+// Auto refresh every minute
+setInterval(renderHomeworks, 60*1000);
+renderHomeworks();
+</script>
 </body>
 </html>
