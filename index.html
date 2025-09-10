@@ -55,15 +55,45 @@
   <div id="workdone"></div>
  <b> <div id="date"></div></b> 
 
-  <div id="target" onclick="">
-  <span id="f"></span> <br>
-  <span id="s"></span> <br>
-  <span id="t"></span> <br>
-  <span id="u"></span> <br>
-  <span id="v"></span>  <br>
-  <span id="w"></span>
+    <div id="target" onclick="">
+  <ul id="unchecked-list"></ul>
+    <div id="done-percent"></div>
 
   </div>
+  <script>
+    function getHomeworkToday() {
+      const homework = JSON.parse(localStorage.getItem("homework") || "[]");
+      const today = new Date().toISOString().slice(0, 10);
+      return homework.filter(item => item.date === today);
+    }
+
+    function renderUncheckedToday() {
+      const list = document.getElementById("unchecked-list");
+      const donePercentElem = document.getElementById("done-percent");
+
+      const homeworkToday = getHomeworkToday();
+      const uncheckedToday = homeworkToday.filter(item => !item.done);
+      const uncheckedCount = uncheckedToday.length;
+
+      list.innerHTML = '';
+      if (uncheckedCount === 0) {
+        list.innerHTML = '<li>No unchecked homework for today!</li>';
+      } else {
+        uncheckedToday.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
+          list.appendChild(li);
+        });
+      }
+
+      // Calculate percent of ticked items based on 6 total items
+      const totalFixed = 6;
+      const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(1);
+      donePercentElem.textContent = `Completed: ${percentDone}%`;
+    }
+
+    renderUncheckedToday();
+  </script>
   <!-- note book complete work -->
   <div id="ncw" onclick="">
      <!--english work complete-->
@@ -108,67 +138,7 @@ document.getElementById('date').innerHTML = 'last update:'+ hoursf+':'+minutes+'
   
   }
   setInterval(Time,10);
-  function Getdata(){
-  var f = document.getElementById('f');
-  var s = document.getElementById('s');
-  var t = document.getElementById('t');
-  var u = document.getElementById('u');
-  var v = document.getElementById('v');
-  var w = document.getElementById('w');
-  var percent = document.getElementById('workdone');
-  var hwc = localStorage.getItem('per');
-  var sst = localStorage.getItem('SSt');
-  var mtb = localStorage.getItem("MathsB");
-  var en = localStorage.getItem("English");
-  var mty = localStorage.getItem("MathsY");
-  var sc = localStorage.getItem("Science");
-  var hi = localStorage.getItem("Hindi");
-let a1 = parseFloat(en);
-let a2 = parseFloat(hi);
-let a3 = parseFloat(sst);
-let a4 = parseFloat(mty);
-let a5 = parseFloat(mtb);
-let a6 = parseFloat(sc);
-//Calculation 
-let sumg = (a1+a2+a3+a4+a5+a6)/6
-let sum = sumg.toFixed(1);
-percent.innerHTML = sum+'% Finished'
-
-  if(en && en.length > 0){
-  f.innerHTML = "English "+en+"%"
-  }else{
-  f.innerHTML = ''
-  }
-  if(sst && sst.length > 0){
-  s.innerHTML = 'Sst '+sst+"%"
-  }else{
-  s.innerHTML = ''
-  }
-  if(mty && mty.length > 0){
-  t.innerHTML = "MathsY "+mty+"%"
-  }else{
-  t.innerHTML = ''
-  }
-  if(hi && hi.length > 0){
-  u.innerHTML = "Hindi "+hi+"%"
-  }else{
-  u.innerHTM = ''
-  }
-  if(sc && sc.length  > 0){
-  v.innerHTML = "Science "+sc+"%"
-  }else{
-  v.innerHTML = ''
-  }
-  if(mtb && mtb.length > 0){
-  w.innerHTML = "MathsB "+mtb+"%"
-  }else{
-  w.innerHTML = ''
-  }
   
-  }
-  
-  
-  setInterval(Getdata,1000)
 function ncw(){
 var enwc = document.getElementById('enwc');
 var hiwc = document.getElementById('hiwc');
