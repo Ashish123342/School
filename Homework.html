@@ -48,65 +48,80 @@ font-size:50px;
   <div id="list"></div>
 
   <script>
-    let homework = JSON.parse(localStorage.getItem("homework") || "[]");
+  let homework = JSON.parse(localStorage.getItem("homework") || "[]");
 
-    function formatDate(dateStr) {
-      const d = new Date(dateStr);
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yy = String(d.getFullYear()).slice(-2);
-      const today = new Date().toISOString().slice(0, 10);
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = String(d.getFullYear()).slice(-2);
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
-      if (dateStr === today) return "Today";
-      if (dateStr === yesterday) return "Yesterday";
-      return `${dd}/${mm}/${yy}`;
-    }
+    if (dateStr === today) return "Today";
+    if (dateStr === yesterday) return "Yesterday";
+    return `${dd}/${mm}/${yy}`;
+  }
 
-    function render() {
-      const list = document.getElementById("list");
-      list.innerHTML = "";
+  function render() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
 
-      const groups = {};
-      homework.forEach((item, index) => {
-        if (!groups[item.date]) groups[item.date] = [];
-        groups[item.date].push({ ...item, index });
+    const groups = {};
+    homework.forEach((item, index) => {
+      if (!groups[item.date]) groups[item.date] = [];
+      groups[item.date].push({ ...item, index });
+    });
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date => {
+      const group = document.createElement("div");
+      group.className = "group";
+      group.innerHTML = `<h3>${formatDate(date)}</h3>`;
+
+      groups[date].forEach(({ subject, notes, done, index }) => {
+        const div = document.createElement("div");
+        div.className = "subject";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = done;
+
+        const dateStart = new Date(date + "T00:00:00");
+        const sevenHoursMs = 7 * 60 * 60 * 1000; // 7 hours in ms
+        const now = new Date();
+
+        // Disable checkbox only if date is before today and 7 hours have passed
+        checkbox.disabled = (date < today) && ((now - dateStart) >= sevenHoursMs);
+
+        checkbox.onchange = () => {
+          if (!checkbox.disabled) {
+            toggleDone(index);
+          }
+        };
+
+        const label = document.createElement("label");
+        label.className = done ? "done" : "";
+        label.textContent = `${subject}${notes ? ': ' + notes : ''}`;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        group.appendChild(div);
       });
 
-      Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date => {
-        const group = document.createElement("div");
-        group.className = "group";
-        group.innerHTML = `<h3>${formatDate(date)}</h3>`;
+      list.appendChild(group);
+    });
+  }
 
-        groups[date].forEach(({ subject, notes, done, index }) => {
-          const div = document.createElement("div");
-          div.className = "subject";
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.checked = done;
-          checkbox.onchange = () => toggleDone(index);
-
-          const label = document.createElement("label");
-          label.className = done ? "done" : "";
-          label.textContent = `${subject}${notes ? ': ' + notes : ''}`;
-
-          div.appendChild(checkbox);
-          div.appendChild(label);
-          group.appendChild(div);
-        });
-
-        list.appendChild(group);
-      });
-    }
-
-    function toggleDone(index) {
-      homework[index].done = !homework[index].done;
-      localStorage.setItem("homework", JSON.stringify(homework));
-      render();
-    }
-
+  function toggleDone(index) {
+    homework[index].done = !homework[index].done;
+    localStorage.setItem("homework", JSON.stringify(homework));
     render();
-  </script>
+  }
+
+  render();
+</script>
+
 </body>
 </html>
