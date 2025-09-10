@@ -86,8 +86,9 @@ body {
    border: none;
    border-radius: 5px;
    position: relative;
-   top:-5px;
+   top:-10px;
    height: 110px;
+   font-size:10px;
    width: 200px;
    text-align :left;
  }
