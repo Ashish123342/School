@@ -78,15 +78,16 @@ body {
   border-radius :5px;
   height:15px;
   width: 150px;
+  font-size:10px;
   }
 
   
   
   .header #target {
-   border: 1px solid black;
+   border: none;
    border-radius: 5px;
    position: relative;
-   top:-20px;
+   top:-50px;
    height: 110px;
    font-size:6px;
    width: 200px;
