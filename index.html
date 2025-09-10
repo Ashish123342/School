@@ -90,13 +90,141 @@
   <!-- test available -->
   <div id="tst" onclick="window.location.href='Testview.html'">🗞</div>
   <!-- copy check infuture -->  <div id="cc" onclick="window.location.href='DashboardCopy.html'">📖</div>
+<script>
+  function Time(){
+  const now = new Date();
+console.log(now.toLocaleString());
+  let hour = now.getHours();
+  let minute = now.getMinutes();
+  let second =   now.getSeconds();
   
-  <script type="module">
-  // ✅ Import Firebase
+  let seconds = second < 10 ? '0'+second:second;
+  let hours = hour < 10 ? '0'+hour:hour;
+  let hoursf = hours > 12 ? hours - 12:hours;
+  let minutes = minute < 10 ? '0'+minute:minute;
+  let ampm = hour > 12 ? 'PM':'AM'
+document.getElementById('date').innerHTML = 'last update:'+ hoursf+':'+minutes+':'+seconds+' '+ampm;
+  
+  
+  }
+  setInterval(Time,10);
+  function Getdata(){
+  var f = document.getElementById('f');
+  var s = document.getElementById('s');
+  var t = document.getElementById('t');
+  var u = document.getElementById('u');
+  var v = document.getElementById('v');
+  var w = document.getElementById('w');
+  var percent = document.getElementById('workdone');
+  var hwc = localStorage.getItem('per');
+  var sst = localStorage.getItem('SSt');
+  var mtb = localStorage.getItem("MathsB");
+  var en = localStorage.getItem("English");
+  var mty = localStorage.getItem("MathsY");
+  var sc = localStorage.getItem("Science");
+  var hi = localStorage.getItem("Hindi");
+let a1 = parseFloat(en);
+let a2 = parseFloat(hi);
+let a3 = parseFloat(sst);
+let a4 = parseFloat(mty);
+let a5 = parseFloat(mtb);
+let a6 = parseFloat(sc);
+//Calculation 
+let sumg = (a1+a2+a3+a4+a5+a6)/6
+let sum = sumg.toFixed(1);
+percent.innerHTML = sum+'% Finished'
+
+  if(en && en.length > 0){
+  f.innerHTML = "English "+en+"%"
+  }else{
+  f.innerHTML = ''
+  }
+  if(sst && sst.length > 0){
+  s.innerHTML = 'Sst '+sst+"%"
+  }else{
+  s.innerHTML = ''
+  }
+  if(mty && mty.length > 0){
+  t.innerHTML = "MathsY "+mty+"%"
+  }else{
+  t.innerHTML = ''
+  }
+  if(hi && hi.length > 0){
+  u.innerHTML = "Hindi "+hi+"%"
+  }else{
+  u.innerHTM = ''
+  }
+  if(sc && sc.length  > 0){
+  v.innerHTML = "Science "+sc+"%"
+  }else{
+  v.innerHTML = ''
+  }
+  if(mtb && mtb.length > 0){
+  w.innerHTML = "MathsB "+mtb+"%"
+  }else{
+  w.innerHTML = ''
+  }
+  
+  }
+  
+  
+  setInterval(Getdata,1000)
+function ncw(){
+var enwc = document.getElementById('enwc');
+var hiwc = document.getElementById('hiwc');
+var mtywc = document.getElementById('mtywc');
+var scwc = document.getElementById('scwc');
+var sstwc = document.getElementById('sstwc');
+var mtbwc = document.getElementById('mtbwc');
+var ncwp = document.getElementById('ncwp');
+var sstw = localStorage.getItem('%sst');
+var mtbw = localStorage.getItem("%mtb");
+var enw = localStorage.getItem("%en");
+var mtyw = localStorage.getItem("%mty");
+var scw = localStorage.getItem("%sc");
+var hiw = localStorage.getItem("%hi");
+var com_per = localStorage.getItem("com_per");
+let sstf = parseFloat(sstw);
+let hif = parseFloat(hiw);
+let scf = parseFloat(scw);
+let enf = parseFloat(enw);
+let mtyf = parseFloat(mtyw);
+let mtbf = parseFloat(mtbw);
+
+
+hiwc.innerHTML =  'Hindi'+' '+hiw+'%';
+enwc.innerHTML = 'English'+' '+enw+'%';
+sstwc.innerHTML = 'Sst'+' '+sstw+'%';
+mtywc.innerHTML = 'MathsY'+' '+mtyw+'%';
+scwc.innerHTML = 'Science'+' '+scw+'%';
+mtbwc.innerHTML = 'MathsB'+' '+mtbw+'%';
+
+let sumf = (sstf+scf+hif+enf+mtbf+mtyf)/6
+let sum = sumf.toFixed(1);
+
+
+ncwp.innerHTML = sum+'%'+' '+'Done'
+  }
+setInterval(ncw,1000);
+
+function rightheader(){
+  window.location.href="Notebook.html"
+  
+}
+function hwshow(){
+  window.location.href="Homework.html"
+}
+function nbshow() {
+  window.location.href = "notebookDataset.html"
+  }
+    
+  </script>
+    <script type="module">
+  // Firebase Imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  // ✅ Firebase Config
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyC3veCIGvvGB-Gm4l1-1QiaKarfKRqgYwk",
     authDomain: "school-87740.firebaseapp.com",
@@ -108,128 +236,34 @@
     measurementId: "G-05TEK2FRM6"
   };
 
-  // ✅ Init Firebase
+  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ✅ Your existing functions
-  function Time() {
-    const now = new Date();
-    let hour = now.getHours();
-    let minute = now.getMinutes();
-    let second = now.getSeconds();
+  // ✅ Function to send ALL localStorage data to Firebase
+  function saveAllLocalStorage() {
+    let allData = {};
 
-    let seconds = second < 10 ? '0' + second : second;
-    let hours = hour < 10 ? '0' + hour : hour;
-    let hoursf = hours > 12 ? hours - 12 : hours;
-    let minutes = minute < 10 ? '0' + minute : minute;
-    let ampm = hour > 12 ? 'PM' : 'AM';
-    document.getElementById('date').innerHTML = 'last update:' + hoursf + ':' + minutes + ':' + seconds + ' ' + ampm;
+    // Get every key from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      let value = localStorage.getItem(key);
+      allData[key] = value;
+    }
+
+    // Unique ID (per save)
+    const saveId = "save_" + new Date().getTime();
+
+    // Store in Firebase under "allData/"
+    set(ref(db, "allData/" + saveId), {
+      timestamp: new Date().toLocaleString(),
+      data: allData
+    }).catch((err) => console.error("❌ Firebase Error:", err));
   }
-  Time();
 
-  function Getdata() {
-    var f = document.getElementById('f');
-    var s = document.getElementById('s');
-    var t = document.getElementById('t');
-    var u = document.getElementById('u');
-    var v = document.getElementById('v');
-    var w = document.getElementById('w');
-    var percent = document.getElementById('workdone');
-
-    var sst = localStorage.getItem('SSt');
-    var mtb = localStorage.getItem("MathsB");
-    var en = localStorage.getItem("English");
-    var mty = localStorage.getItem("MathsY");
-    var sc = localStorage.getItem("Science");
-    var hi = localStorage.getItem("Hindi");
-
-    let a1 = parseFloat(en);
-    let a2 = parseFloat(hi);
-    let a3 = parseFloat(sst);
-    let a4 = parseFloat(mty);
-    let a5 = parseFloat(mtb);
-    let a6 = parseFloat(sc);
-
-    let sumg = (a1 + a2 + a3 + a4 + a5 + a6) / 6;
-    let sum = sumg.toFixed(1);
-    percent.innerHTML = sum + '% Finished';
-
-    if (en) f.innerHTML = "English " + en + "%"; else f.innerHTML = '';
-    if (sst) s.innerHTML = 'Sst ' + sst + "%"; else s.innerHTML = '';
-    if (mty) t.innerHTML = "MathsY " + mty + "%"; else t.innerHTML = '';
-    if (hi) u.innerHTML = "Hindi " + hi + "%"; else u.innerHTML = '';
-    if (sc) v.innerHTML = "Science " + sc + "%"; else v.innerHTML = '';
-    if (mtb) w.innerHTML = "MathsB " + mtb + "%"; else w.innerHTML = '';
-
-    // ✅ Store in Firebase
-    const userId = "student_" + new Date().getTime();
-    set(ref(db, "progress/" + userId), {
-      English: en,
-      Hindi: hi,
-      SSt: sst,
-      MathsY: mty,
-      MathsB: mtb,
-      Science: sc,
-      TotalPercent: sum
-    });
-  }
-  Getdata(); // every 5 seconds send to Firebase
-
-  function ncw() {
-    var enwc = document.getElementById('enwc');
-    var hiwc = document.getElementById('hiwc');
-    var mtywc = document.getElementById('mtywc');
-    var scwc = document.getElementById('scwc');
-    var sstwc = document.getElementById('sstwc');
-    var mtbwc = document.getElementById('mtbwc');
-    var ncwp = document.getElementById('ncwp');
-
-    var sstw = localStorage.getItem('%sst');
-    var mtbw = localStorage.getItem("%mtb");
-    var enw = localStorage.getItem("%en");
-    var mtyw = localStorage.getItem("%mty");
-    var scw = localStorage.getItem("%sc");
-    var hiw = localStorage.getItem("%hi");
-
-    let sstf = parseFloat(sstw);
-    let hif = parseFloat(hiw);
-    let scf = parseFloat(scw);
-    let enf = parseFloat(enw);
-    let mtyf = parseFloat(mtyw);
-    let mtbf = parseFloat(mtbw);
-
-    hiwc.innerHTML = 'Hindi ' + hiw + '%';
-    enwc.innerHTML = 'English ' + enw + '%';
-    sstwc.innerHTML = 'Sst ' + sstw + '%';
-    mtywc.innerHTML = 'MathsY ' + mtyw + '%';
-    scwc.innerHTML = 'Science ' + scw + '%';
-    mtbwc.innerHTML = 'MathsB ' + mtbw + '%';
-
-    let sumf = (sstf + scf + hif + enf + mtbf + mtyf) / 6;
-    let sum = sumf.toFixed(1);
-
-    ncwp.innerHTML = sum + '%' + ' ' + 'Done';
-
-    // ✅ Also save this to Firebase
-    const userId = "work_" + new Date().getTime();
-    set(ref(db, "completed/" + userId), {
-      English: enw,
-      Hindi: hiw,
-      SSt: sstw,
-      MathsY: mtyw,
-      MathsB: mtbw,
-      Science: scw,
-      TotalPercent: sum
-    });
-  }
-  ncw();
-
-  function rightheader() { window.location.href = "Notebook.html"; }
-  function hwshow() { window.location.href = "Homework.html"; }
-  function nbshow() { window.location.href = "notebookDataset.html"; }
-  </script>
-
+  // ✅ Auto-save every 10 seconds (change timing as per need)
+  setInterval(saveAllLocalStorage, 10000);
+    </script>
 
   </body>
 </html>
