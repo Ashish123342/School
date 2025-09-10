@@ -51,7 +51,7 @@ body {
   text-align: center;
 }
   .header {
-  font-size :10px;
+  font-size :6px;
   display: grid; /* Use grid instead of flex */
   grid-template-columns: repeat(2, 1fr); /* 2 columns */
   
@@ -86,11 +86,11 @@ body {
    border: 1px solid black;
    border-radius: 5px;
    position: relative;
-   top:-40px;
+   top:-20px;
    height: 110px;
-   font-size:4px;
+   font-size:6px;
    width: 200px;
-   text-align :left;
+   text-align :top;
  }
 
    .header #ncw {
