@@ -126,7 +126,7 @@
     let ampm = hour > 12 ? 'PM' : 'AM';
     document.getElementById('date').innerHTML = 'last update:' + hoursf + ':' + minutes + ':' + seconds + ' ' + ampm;
   }
-  setInterval(Time, 1000);
+  Time();
 
   function Getdata() {
     var f = document.getElementById('f');
@@ -174,7 +174,7 @@
       TotalPercent: sum
     });
   }
-  setInterval(Getdata, 5000); // every 5 seconds send to Firebase
+  Getdata(); // every 5 seconds send to Firebase
 
   function ncw() {
     var enwc = document.getElementById('enwc');
@@ -223,7 +223,7 @@
       TotalPercent: sum
     });
   }
-  setInterval(ncw, 5000);
+  ncw();
 
   function rightheader() { window.location.href = "Notebook.html"; }
   function hwshow() { window.location.href = "Homework.html"; }
