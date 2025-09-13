@@ -89,12 +89,7 @@
       // Calculate percent of ticked items based on 6 total items
       const totalFixed = 6;
       const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(1);
-if(percentDone < 30){
-percentDone.style.color = "red"
-}else{
-percentDone.style.color = "yellow"
-}
-      donePercentElem.textContent = `Completed: ${percentDone}%`;
+ donePercentElem.textContent = `Completed: ${percentDone}%`;
     }
 
     renderUncheckedToday();
