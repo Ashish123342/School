@@ -62,10 +62,18 @@
   </div>
 <script>
 function low(){
-if(document.getElementById("done-percent").value === 16.7){
-document.getElementById("done-percent").style.color = "red"
+var p = document.getElementById("done-percent").value;
+s = document.getElementById("done-percent");
+if(p > 10){
+s.style.color = "red"
 }else{
-document.getElementById("done-percent").style.color = "yellow"
+if(p > 20){
+s.style.color = "orange"
+}else{ 
+if(p > 30){
+s.style.color = "yellow"
+}
+}
 }
 
 }
