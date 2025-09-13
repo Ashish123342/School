@@ -60,6 +60,10 @@
     <div id="done-percent" style=""></div>
 
   </div>
+<script>
+if(document.getElementById("done-percent").value <= 30){
+document.getElementById("done-percent").style.color = "red"}
+</script>
   <script>
     function getHomeworkToday() {
       const homework = JSON.parse(localStorage.getItem("homework") || "[]");
