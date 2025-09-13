@@ -60,25 +60,7 @@
     <div id="done-percent" style=""></div>
 
   </div>
-<script>
-function low(){
-var p = document.getElementById("done-percent").value;
-s = document.getElementById("done-percent");
-if(p > 10){
-s.style.color = "red"
-}else{
-if(p > 20){
-s.style.color = "orange"
-}else{ 
-if(p > 30){
-s.style.color = "yellow"
-}
-}
-}
 
-}
-low();
-</script>
   <script>
     function getHomeworkToday() {
       const homework = JSON.parse(localStorage.getItem("homework") || "[]");
@@ -113,6 +95,59 @@ low();
 
     renderUncheckedToday();
   </script>
+<script>
+    function getHomeworkToday() {
+      const homework = JSON.parse(localStorage.getItem("homework") || "[]");
+      const today = new Date().toISOString().slice(0, 10);
+      return homework.filter(item => item.date === today);
+    }
+
+    function getColorForPercent(percent) {
+      // Convert percent (0–100) into RGB between red → yellow → green
+      let r, g, b = 0;
+
+      if (percent < 50) {
+        // Red → Yellow
+        r = 255;
+        g = Math.round(255 * (percent / 50)); // 0 → 255
+      } else {
+        // Yellow → Green
+        g = 255;
+        r = Math.round(255 * (1 - (percent - 50) / 50)); // 255 → 0
+      }
+
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function renderUncheckedToday() {
+      const list = document.getElementById("unchecked-list");
+      const donePercentElem = document.getElementById("done-percent");
+
+      const homeworkToday = getHomeworkToday();
+      const uncheckedToday = homeworkToday.filter(item => !item.done);
+      const uncheckedCount = uncheckedToday.length;
+
+      list.innerHTML = '';
+      if (uncheckedCount === 0) {
+        list.innerHTML = '<li>You Won! Your work is fully done.</li>';
+      } else {
+        uncheckedToday.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
+          list.appendChild(li);
+        });
+      }
+
+      // Calculate percent of ticked items based on 6 total items
+      const totalFixed = 6;
+      const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(0);
+
+      donePercentElem.textContent = `Completed: ${percentDone}%`;
+      donePercentElem.style.color = getColorForPercent(percentDone); // Apply color
+    }
+
+    renderUncheckedToday();
+</script>
   <!-- note book complete work -->
   <div id="ncw" onclick="">
      <!--english work complete-->
