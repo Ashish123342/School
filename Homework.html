@@ -89,11 +89,11 @@ font-size:50px;
         checkbox.checked = done;
 
         const dateStart = new Date(date + "T00:00:00");
-        const sevenHoursMs = 9 * 60 * 60 * 1000; // 7 hours in ms
+        const hoursLimitMs = 10 * 60 * 60 * 1000; // ✅ 10 hours in ms
         const now = new Date();
 
-        // Disable checkbox only if date is before today and 7 hours have passed
-        checkbox.disabled = (date < today) && ((now - dateStart) >= sevenHoursMs);
+        // Disable checkbox only if date is before today and 10 hours have passed
+        checkbox.disabled = (date < today) && ((now - dateStart) >= hoursLimitMs);
 
         checkbox.onchange = () => {
           if (!checkbox.disabled) {
@@ -122,6 +122,5 @@ font-size:50px;
 
   render();
 </script>
-
 </body>
 </html>
