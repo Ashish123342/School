@@ -95,6 +95,9 @@
 
     renderUncheckedToday();
   </script>
+<!-- Confetti Library (canvas-confetti) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
 <script>
     function getHomeworkToday() {
       const homework = JSON.parse(localStorage.getItem("homework") || "[]");
@@ -103,21 +106,20 @@
     }
 
     function getColorForPercent(percent) {
-      // Convert percent (0–100) into RGB between red → yellow → green
       let r, g, b = 0;
 
       if (percent < 50) {
-        // Red → Yellow
         r = 255;
-        g = Math.round(255 * (percent / 50)); // 0 → 255
+        g = Math.round(255 * (percent / 50));
       } else {
-        // Yellow → Green
         g = 255;
-        r = Math.round(255 * (1 - (percent - 50) / 50)); // 255 → 0
+        r = Math.round(255 * (1 - (percent - 50) / 50));
       }
 
       return `rgb(${r},${g},${b})`;
     }
+
+    let confettiPlayed = false; // ensure only once
 
     function renderUncheckedToday() {
       const list = document.getElementById("unchecked-list");
@@ -129,21 +131,51 @@
 
       list.innerHTML = '';
       if (uncheckedCount === 0) {
-        list.innerHTML = '<li>You Won! Your work is fully done.</li>';
+        list.innerHTML = '<li>🎉 You Won! Your work is fully done. 🎉</li>';
+
+        // Trigger confetti once
+        if (!confettiPlayed) {
+          confettiPlayed = true;
+          launchConfetti();
+        }
       } else {
         uncheckedToday.forEach(item => {
           const li = document.createElement('li');
           li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
           list.appendChild(li);
         });
+        confettiPlayed = false; // reset so next time can play again
       }
 
-      // Calculate percent of ticked items based on 6 total items
       const totalFixed = 6;
       const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(0);
 
       donePercentElem.textContent = `Completed: ${percentDone}%`;
-      donePercentElem.style.color = getColorForPercent(percentDone); // Apply color
+      donePercentElem.style.color = getColorForPercent(percentDone);
+    }
+
+    function launchConfetti() {
+      const duration = 3 * 1000; // 3 seconds
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
     }
 
     renderUncheckedToday();
