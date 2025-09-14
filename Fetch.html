@@ -25,9 +25,11 @@
 <script>
 let password = prompt('Enter your Password')
   if(password === '565'){
-  document.getElementById("showAll").style.display = "block"
+  document.getElementById("showAll").style.display = "block";
+document.getElementById("searchBtn").style.display = "block"
   }else{
-document.getElementById("showAll").style.display = "none"
+document.getElementById("showAll").style.display = "none";
+document.getElementById("searchBtn").style.display = "none"
 }
 function tryParseJSON(value){
   try { return JSON.parse(value); } catch(e) { return null; }
