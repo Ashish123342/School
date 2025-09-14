@@ -57,7 +57,7 @@
 
     <div id="target" onclick="">
   <ul id="unchecked-list" style="text-align:left;"></ul>
-    <div id="done-percent" style="font-weight:bold;background:#fff;border-radius:10px"></div>
+    <div id="done-percent" style="font-weight:bold;border-radius:10px"></div>
 
   </div>
 
@@ -78,7 +78,7 @@
 
       list.innerHTML = '';
       if (uncheckedCount === 0) {
-        list.innerHTML = '<li>You Won! Your work is fully done.</li>';
+        list.innerHTML = '<li>Your work has been Expired while you had not done.</li>';
       } else {
         uncheckedToday.forEach(item => {
           const li = document.createElement('li');
