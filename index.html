@@ -62,124 +62,119 @@
   </div>
 
   <script>
-    function getHomeworkToday() {
-      const homework = JSON.parse(localStorage.getItem("homework") || "[]");
-      const today = new Date().toISOString().slice(0, 10);
-      return homework.filter(item => item.date === today);
+    // load
+    let homework = JSON.parse(localStorage.getItem("homework") || "[]");
+
+    // --- TEST SEED: remove this block in production ---
+    if (!homework.length) {
+      const today = new Date().toISOString().slice(0,10);
+      const yesterday = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+
+      homework = [
+        { subject: "Math", notes: "Ex 5.2", date: today, done: false },         // today — should NOT be disabled
+        { subject: "Science", notes: "Read ch.2", date: yesterday, done: false }, // yesterday — likely disabled (depends on current time)
+        { subject: "History", notes: "Map work", date: twoDaysAgo, done: false }  // older — will be disabled
+      ];
+      localStorage.setItem("homework", JSON.stringify(homework));
+    }
+    // --- end seed ---
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth() + 1).padStart(2,'0');
+      const yy = String(d.getFullYear()).slice(-2);
+      const today = new Date().toISOString().slice(0,10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+
+      if (dateStr === today) return "Today";
+      if (dateStr === yesterday) return "Yesterday";
+      return `${dd}/${mm}/${yy}`;
     }
 
-    function renderUncheckedToday() {
-      const list = document.getElementById("unchecked-list");
-      const donePercentElem = document.getElementById("done-percent");
+    function render() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
 
-      const homeworkToday = getHomeworkToday();
-      const uncheckedToday = homeworkToday.filter(item => !item.done);
-      const uncheckedCount = uncheckedToday.length;
+      // group by date
+      const groups = {};
+      homework.forEach((item, index) => {
+        const key = item.date;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push({ ...item, index });
+      });
 
-      list.innerHTML = '';
-      if (uncheckedCount === 0) {
-        list.innerHTML = '<li>You Won! Your work is fully done.</li>';
-      } else {
-        uncheckedToday.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
-          list.appendChild(li);
+      // start of today in local timezone
+      const startOfToday = new Date();
+      startOfToday.setHours(0,0,0,0);
+
+      // LIMIT: change this to any number of hours you want
+      const hoursLimit = 10;
+      const hoursLimitMs = hoursLimit * 60 * 60 * 1000; // 10 * 3600 * 1000
+
+      // sort dates descending
+      Object.keys(groups).sort((a,b) => b.localeCompare(a)).forEach(dateKey => {
+        const group = document.createElement("div");
+        group.className = "group";
+        group.innerHTML = `<h3>${formatDate(dateKey)}</h3>`;
+
+        groups[dateKey].forEach(({ subject, notes, done, index }) => {
+          const div = document.createElement("div");
+          div.className = "subject";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!done;
+
+          // Determine due start:
+          // If you store a full datetime (item.datetime), use that.
+          // Otherwise we assume the due moment is that date at 00:00 local time.
+          const item = homework[index];
+          let dueStart;
+          if (item.datetime) {
+            dueStart = new Date(item.datetime); // user-supplied full datetime
+          } else {
+            dueStart = new Date(dateKey + "T00:00:00"); // local midnight for that date
+          }
+
+          const now = new Date();
+
+          // disable only if the dueStart is strictly before today (i.e., a past date)
+          // AND at least `hoursLimit` hours have passed since dueStart
+          const isBeforeToday = dueStart < startOfToday;
+          const passedLimit = (now - dueStart) >= hoursLimitMs;
+          checkbox.disabled = !!(isBeforeToday && passedLimit);
+
+          checkbox.onchange = () => {
+            if (!checkbox.disabled) toggleDone(index);
+          };
+
+          const label = document.createElement("label");
+          label.className = done ? "done" : "";
+          if (checkbox.disabled) {
+            label.classList.add("disabled");
+            label.title = `Disabled: more than ${hoursLimit} hours past due`;
+          }
+          label.textContent = `${subject}${notes ? ': ' + notes : ''}`;
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          group.appendChild(div);
         });
-      }
 
-      // Calculate percent of ticked items based on 6 total items
-      const totalFixed = 6;
-      const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(1);
- donePercentElem.textContent = `Completed: ${percentDone}%`;
+        list.appendChild(group);
+      });
     }
 
-    renderUncheckedToday();
+    function toggleDone(index) {
+      homework[index].done = !homework[index].done;
+      localStorage.setItem("homework", JSON.stringify(homework));
+      render();
+    }
+
+    render();
   </script>
-<!-- Confetti Library (canvas-confetti) -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-
-<script>
-    function getHomeworkToday() {
-      const homework = JSON.parse(localStorage.getItem("homework") || "[]");
-      const today = new Date().toISOString().slice(0, 10);
-      return homework.filter(item => item.date === today);
-    }
-
-    function getColorForPercent(percent) {
-      let r, g, b = 0;
-
-      if (percent < 50) {
-        r = 255;
-        g = Math.round(255 * (percent / 50));
-      } else {
-        g = 255;
-        r = Math.round(255 * (1 - (percent - 50) / 50));
-      }
-
-      return `rgb(${r},${g},${b})`;
-    }
-
-    let confettiPlayed = false; // ensure only once
-
-    function renderUncheckedToday() {
-      const list = document.getElementById("unchecked-list");
-      const donePercentElem = document.getElementById("done-percent");
-
-      const homeworkToday = getHomeworkToday();
-      const uncheckedToday = homeworkToday.filter(item => !item.done);
-      const uncheckedCount = uncheckedToday.length;
-
-      list.innerHTML = '';
-      if (uncheckedCount === 0) {
-        list.innerHTML = '<li>🎉 You Won! Your work is fully done. 🎉</li>';
-
-        // Trigger confetti once
-        if (!confettiPlayed) {
-          confettiPlayed = true;
-          launchConfetti();
-        }
-      } else {
-        uncheckedToday.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
-          list.appendChild(li);
-        });
-        confettiPlayed = false; // reset so next time can play again
-      }
-
-      const totalFixed = 6;
-      const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(0);
-
-      donePercentElem.textContent = `Completed: ${percentDone}%`;
-      donePercentElem.style.color = getColorForPercent(percentDone);
-    }
-
-    function launchConfetti() {
-      const duration = 3 * 1000; // 3 seconds
-      const end = Date.now() + duration;
-
-      (function frame() {
-        confetti({
-          particleCount: 5,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 }
-        });
-        confetti({
-          particleCount: 5,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 }
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      })();
-    }
-
-    renderUncheckedToday();
-</script>
   <!-- note book complete work -->
   <div id="ncw" onclick="">
      <!--english work complete-->
