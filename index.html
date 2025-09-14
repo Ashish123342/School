@@ -56,45 +56,71 @@
  <b> <div id="date"></div></b> 
 
     <div id="target" onclick="">
-  <ul id="unchecked-list" style="text-align:left;"></ul>
-    <div id="done-percent" style="font-weight:bold;border-radius:10px"></div>
+<ul id="unchecked-list"></ul>
+<div id="done-percent"></div>
 
-  </div>
+<script>
+  function getHomeworkToday() {
+    const homework = JSON.parse(localStorage.getItem("homework") || "[]");
+    const today = new Date().toISOString().slice(0, 10);
+    return homework.filter(item => item.date === today);
+  }
 
-  <script>
-    function getHomeworkToday() {
-      const homework = JSON.parse(localStorage.getItem("homework") || "[]");
-      const today = new Date().toISOString().slice(0, 10);
-      return homework.filter(item => item.date === today);
-    }
+  function saveHomework(data) {
+    localStorage.setItem("homework", JSON.stringify(data));
+  }
 
-    function renderUncheckedToday() {
-      const list = document.getElementById("unchecked-list");
-      const donePercentElem = document.getElementById("done-percent");
+  function isExpired(dateStr) {
+    const created = new Date(dateStr + "T00:00:00");
+    const now = new Date();
+    const diffHrs = (now - created) / (1000 * 60 * 60); // milliseconds → hours
+    return diffHrs >= 10; // 10 hours cross hone ke baad expire
+  }
 
-      const homeworkToday = getHomeworkToday();
-      const uncheckedToday = homeworkToday.filter(item => !item.done);
-      const uncheckedCount = uncheckedToday.length;
+  function renderUncheckedToday() {
+    const list = document.getElementById("unchecked-list");
+    const donePercentElem = document.getElementById("done-percent");
 
-      list.innerHTML = '';
-      if (uncheckedCount === 0) {
-        list.innerHTML = '<li>Your work has been Expired while you had not done.</li>';
-      } else {
-        uncheckedToday.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = `${item.subject}${item.notes ? ': ' + item.notes : ''}`;
-          list.appendChild(li);
-        });
-      }
+    const allHomework = JSON.parse(localStorage.getItem("homework") || "[]");
+    const homeworkToday = getHomeworkToday();
 
-      // Calculate percent of ticked items based on 6 total items
-      const totalFixed = 6;
-      const percentDone = ((totalFixed - uncheckedCount) * 100 / totalFixed).toFixed(1);
- donePercentElem.textContent = `Completed: ${percentDone}%`;
-    }
+    const expired = homeworkToday.length > 0 && isExpired(homeworkToday[0].date);
 
-    renderUncheckedToday();
-  </script>
+    list.innerHTML = '';
+
+    homeworkToday.forEach((item, idx) => {
+      const li = document.createElement('li');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = item.done || false;
+      checkbox.disabled = expired; // agar expire ho gaya to disable
+
+      checkbox.addEventListener('change', () => {
+        item.done = checkbox.checked;
+        const indexInAll = allHomework.findIndex(h => h.date === item.date && h.subject === item.subject);
+        if (indexInAll !== -1) {
+          allHomework[indexInAll].done = item.done;
+          saveHomework(allHomework);
+        }
+        renderUncheckedToday();
+      });
+
+      li.appendChild(checkbox);
+      li.append(" " + item.subject + (item.notes ? ': ' + item.notes : ''));
+      list.appendChild(li);
+    });
+
+    // Percent calc sirf expire hone ke baad bhi wahi count karega jo ticked hai
+    const totalFixed = 6;
+    const doneCount = homeworkToday.filter(item => item.done).length;
+    const percentDone = ((doneCount) * 100 / totalFixed).toFixed(1);
+
+    donePercentElem.textContent = `Completed: ${percentDone}%`;
+  }
+
+  renderUncheckedToday();
+</script>
     
   <!-- note book complete work -->
   <div id="ncw" onclick="">
