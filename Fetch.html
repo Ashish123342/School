@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <title>LocalStorage Search Tool</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial; padding: 20px; max-width: 900px; margin: auto; }
+    input, button, select { padding: 8px; margin: 4px 6px 12px 0; font-size: 14px; }
+    .result { border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 8px; background:#fafafa; }
+    .key { font-weight: 700; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f6; padding: 8px; border-radius: 6px; }
+    .meta { font-size: 12px; color: #666; }
+    .actions { margin-top: 10px; }
+    .small { font-size: 13px; padding: 6px 8px; }
+  </style>
+</head>
+<body>
+  <h2>LocalStorage Search Tool</h2>
+  <div>
+    <input id="query" placeholder="Search query or regex (e.g. login, ^user, \\d{3})" style="width:60%" />
+    <select id="mode">
+      <option value="text">Plain text (case-insensitive)</option>
+      <option value="regex">Regular expression</option>
+    </select>
+    <button id="searchBtn">Search</button>
+    <button id="showAll" class="small">Show all keys</button>
+    <button id="clearLS" class="small">Clear localStorage (CONFIRM)</button>
+  </div>
+
+  <div style="margin-top:6px;">
+    <label><input type="checkbox" id="searchKeys" checked /> Search keys</label>
+    <label style="margin-left:12px;"><input type="checkbox" id="searchValues" checked /> Search values & nested JSON</label>
+  </div>
+
+  <div class="actions">
+    <button id="exportBtn" class="small">Export results (JSON)</button>
+    <button id="copyBtn" class="small">Copy results to clipboard</button>
+  </div>
+
+  <hr/>
+  <div id="results"></div>
+
+<script>
+/*
+  localStorage search tool
+  - Supports plain text or regex
+  - Tries to parse JSON and does deep search inside objects/arrays
+  - Returns matches with context
+*/
+
+function tryParseJSON(value){
+  try {
+    return JSON.parse(value);
+  } catch(e) {
+    return null;
+  }
+}
+
+function deepSearch(obj, queryFn, path = '') {
+  // returns array of matched { path, type, value }
+  const matches = [];
+  if (obj === null || obj === undefined) return matches;
+
+  const t = Object.prototype.toString.call(obj);
+  if (t === '[object Object]') {
+    for (const k of Object.keys(obj)) {
+      if (queryFn(k)) matches.push({ path: path ? path + '.' + k : k, type: 'key', value: k });
+      const child = obj[k];
+      if (typeof child === 'string' || typeof child === 'number' || typeof child === 'boolean') {
+        if (queryFn(String(child))) matches.push({ path: path ? path + '.' + k : k, type: 'value', value: child });
+      } else {
+        matches.push(...deepSearch(child, queryFn, path ? path + '.' + k : k));
+      }
+    }
+  } else if (t === '[object Array]') {
+    for (let i=0; i<obj.length; i++) {
+      const child = obj[i];
+      if (typeof child === 'string' || typeof child === 'number' || typeof child === 'boolean') {
+        if (queryFn(String(child))) matches.push({ path: (path ? path + '.' : '') + '['+i+']', type: 'value', value: child });
+      } else {
+        matches.push(...deepSearch(child, queryFn, (path ? path + '.' : '') + '['+i+']'));
+      }
+    }
+  }
+  return matches;
+}
+
+function searchLocalStorage(query, options = { mode:'text', searchKeys:true, searchValues:true }) {
+  const results = []; // { key, rawValue, parsed, matches: [...] }
+  const q = query;
+
+  let regex = null;
+  if (options.mode === 'regex') {
+    try {
+      regex = new RegExp(q, 'i');
+    } catch (e) {
+      throw new Error('Invalid regular expression: ' + e.message);
+    }
+  }
+  const queryFn = (str) => {
+    if (options.mode === 'regex') {
+      return regex.test(str);
+    } else {
+      return String(str).toLowerCase().includes(String(q).toLowerCase());
+    }
+  };
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const rawValue = localStorage.getItem(key);
+    const entry = { key, rawValue, parsed: null, matches: [] };
+
+    if (options.searchKeys && queryFn(key)) {
+      entry.matches.push({ type: 'key', context: key });
+    }
+
+    if (options.searchValues) {
+      // check raw string value
+      if (rawValue !== null && queryFn(rawValue)) {
+        entry.matches.push({ type: 'value-string', context: rawValue });
+      }
+
+      // try parse JSON
+      const parsed = tryParseJSON(rawValue);
+      if (parsed !== null) {
+        entry.parsed = parsed;
+        const deep = deepSearch(parsed, queryFn);
+        if (deep.length) {
+          entry.matches.push(...deep);
+        }
+      }
+    }
+
+    if (entry.matches.length) results.push(entry);
+  }
+
+  return results;
+}
+
+/* UI wiring */
+const resultsDiv = document.getElementById('results');
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const q = document.getElementById('query').value.trim();
+  const mode = document.getElementById('mode').value;
+  const searchKeys = document.getElementById('searchKeys').checked;
+  const searchValues = document.getElementById('searchValues').checked;
+
+  resultsDiv.innerHTML = '';
+  if (!q) {
+    resultsDiv.innerHTML = '<p class="meta">Please enter a search query.</p>';
+    return;
+  }
+
+  try {
+    const found = searchLocalStorage(q, { mode, searchKeys, searchValues });
+    renderResults(found);
+  } catch (err) {
+    resultsDiv.innerHTML = '<div class="meta" style="color:crimson">Error: ' + err.message + '</div>';
+  }
+});
+
+document.getElementById('showAll').addEventListener('click', () => {
+  const arr = [];
+  for (let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    arr.push({ key: k, rawValue: localStorage.getItem(k) });
+  }
+  resultsDiv.innerHTML = '';
+  if (arr.length === 0) { resultsDiv.innerHTML = '<p class="meta">localStorage empty</p>'; return; }
+  arr.forEach(item => {
+    const el = document.createElement('div'); el.className='result';
+    el.innerHTML = `<div class="key">${escapeHtml(item.key)}</div>
+      <pre>${escapeHtml(item.rawValue)}</pre>
+      <div class="meta">Length: ${String(item.rawValue||'').length} chars</div>
+      <div style="margin-top:8px">
+        <button onclick="copyToClipboard(${JSON.stringify(item.rawValue)})" class="small">Copy value</button>
+      </div>`;
+    resultsDiv.appendChild(el);
+  });
+});
+
+document.getElementById('clearLS').addEventListener('click', () => {
+  if (!confirm('Are you sure? This will delete ALL localStorage data for this origin.')) return;
+  localStorage.clear();
+  resultsDiv.innerHTML = '<div class="meta">localStorage cleared.</div>';
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const q = document.getElementById('query').value.trim();
+  const mode = document.getElementById('mode').value;
+  const searchKeys = document.getElementById('searchKeys').checked;
+  const searchValues = document.getElementById('searchValues').checked;
+  if (!q) { alert('Enter query first'); return; }
+  const found = searchLocalStorage(q, { mode, searchKeys, searchValues });
+  const blob = new Blob([JSON.stringify(found, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ls-search-results.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const q = document.getElementById('query').value.trim();
+  const mode = document.getElementById('mode').value;
+  const searchKeys = document.getElementById('searchKeys').checked;
+  const searchValues = document.getElementById('searchValues').checked;
+  if (!q) { alert('Enter query first'); return; }
+  const found = searchLocalStorage(q, { mode, searchKeys, searchValues });
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(found, null, 2));
+    alert('Copied to clipboard');
+  } catch (e) {
+    alert('Copy failed: ' + e.message);
+  }
+});
+
+function renderResults(found) {
+  resultsDiv.innerHTML = '';
+  if (!found.length) { resultsDiv.innerHTML = '<p class="meta">कोई मैच नहीं मिला।</p>'; return; }
+  found.forEach(entry => {
+    const el = document.createElement('div'); el.className='result';
+    const prettyParsed = entry.parsed ? JSON.stringify(entry.parsed, null, 2) : null;
+    el.innerHTML = `
+      <div class="key">${escapeHtml(entry.key)}</div>
+      <div class="meta">Matches: ${entry.matches.length}</div>
+      <div style="margin-top:8px"><strong>Raw value:</strong>
+        <pre>${escapeHtml(entry.rawValue)}</pre>
+      </div>
+      ${prettyParsed ? `<div style="margin-top:8px"><strong>Parsed JSON:</strong><pre>${escapeHtml(prettyParsed)}</pre></div>` : ''}
+      <div style="margin-top:8px"><strong>Match details:</strong>
+        <pre>${escapeHtml(formatMatches(entry.matches))}</pre>
+      </div>
+      <div style="margin-top:8px">
+        <button onclick='copyToClipboard(${JSON.stringify(entry.rawValue)})' class="small">Copy value</button>
+        <button onclick='downloadKey(${JSON.stringify(entry.key)}, ${JSON.stringify(entry.rawValue)})' class="small">Download</button>
+      </div>
+    `;
+    resultsDiv.appendChild(el);
+  });
+}
+
+function formatMatches(matches) {
+  return matches.map(m => {
+    if (m.type === 'key') return `Key match: "${m.context || m.value}"`;
+    if (m.type === 'value-string') return `Value substring match: "${m.context}"`;
+    if (m.type === 'value' || m.type === 'value-number' || m.type === 'value-boolean') return `Nested match at ${m.path}: ${JSON.stringify(m.value)}`;
+    return `${m.type} at ${m.path || ''} => ${JSON.stringify(m.value || m.context)}`;
+  }).join('\\n');
+}
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
+}
+
+function copyToClipboard(str) {
+  navigator.clipboard.writeText(str).then(()=>alert('Copied'), ()=>alert('Copy failed'));
+}
+
+function downloadKey(key, value){
+  const blob = new Blob([value], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = key + '.txt'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* make search on Enter key */
+document.getElementById('query').addEventListener('keyup', (e) => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+
+/* expose helper for console quick-search */
+window.searchLocalStorage = searchLocalStorage;
+</script>
+</body>
+</html>
