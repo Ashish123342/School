@@ -23,6 +23,12 @@
   <div id="results"></div>
 
 <script>
+let password = prompt('Enter your Password')
+  if(password === '565'){
+  document.getElementById("showAll").style.display = "block"
+  }else{
+document.getElementById("showAll").style.display = "none"
+}
 function tryParseJSON(value){
   try { return JSON.parse(value); } catch(e) { return null; }
 }
